@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Card } from './components/Card/Card';
 
 interface Card {
   label: string;
@@ -56,8 +57,10 @@ const App = () => {
   const [cards, setCards] = useState<Card[]>();
   const [playerCards, setPlayerCards] = useState<Card[]>([]);
   const [oponentCards, setOponentCards] = useState<Card[]>([]);
-
   const [playerTurn, setPlayerTurn] = useState<string | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
+
+  const historyContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     checkQuatro(true);
@@ -69,13 +72,17 @@ const App = () => {
 
   useEffect(() => {
     if (!cards) return;
-
+    const turnHistory: string[] = [];
+    let choosenCard: Card = { label: '', mast: '' };
     if (playerTurn) {
+      turnHistory.push('Player turn');
+      turnHistory.push(`Player choose ${playerTurn}`);
       const findInOponent = oponentCards.filter(
         ({ label }) => label === playerTurn
       );
 
       if (findInOponent.length > 0) {
+        turnHistory.push(`Player take all ${playerTurn} from opponent.`);
         setPlayerCards([...playerCards, ...findInOponent]);
         setOponentCards(
           oponentCards.filter(
@@ -86,6 +93,9 @@ const App = () => {
           )
         );
       } else {
+        turnHistory.push(
+          `Opponent don't have ${playerTurn}. Player take one card from desk.`
+        );
         const newCard = cards[Math.floor(Math.random() * cards.length)];
         setPlayerCards([...playerCards, newCard]);
         setCards(
@@ -97,14 +107,16 @@ const App = () => {
 
       setTimeout(() => setPlayerTurn(null), 2000);
     } else {
+      turnHistory.push('Opponent turn.');
       const choosenCardIndex = Math.floor(Math.random() * oponentCards.length);
-      const choosenCard = oponentCards[choosenCardIndex];
-
+      choosenCard = oponentCards[choosenCardIndex];
+      turnHistory.push(`Opponent choose ${choosenCard.label}.`);
       const findInPlayer = playerCards.filter(
         ({ label }) => label === choosenCard.label
       );
 
       if (findInPlayer.length > 0) {
+        turnHistory.push(`Opponent take all ${choosenCard.label} from player.`);
         setOponentCards([...oponentCards, ...findInPlayer]);
         setPlayerCards(
           playerCards.filter(
@@ -115,6 +127,9 @@ const App = () => {
           )
         );
       } else {
+        turnHistory.push(
+          `Player don't have ${choosenCard.label}. Opponent take one card from desk.`
+        );
         const newCard = cards[Math.floor(Math.random() * cards.length)];
 
         setOponentCards([...oponentCards, newCard]);
@@ -125,7 +140,15 @@ const App = () => {
         );
       }
     }
+    setHistory([...history, ...turnHistory]);
   }, [playerTurn]);
+
+  useEffect(() => {
+    if (historyContainerRef.current) {
+      historyContainerRef.current.scrollTop =
+        historyContainerRef.current.scrollHeight;
+    }
+  }, [history]);
 
   const checkQuatro = (player: boolean) => {
     const coloda = player ? playerCards : oponentCards;
@@ -157,6 +180,7 @@ const App = () => {
   const startNewGame = () => {
     setOponentCards([]);
     setPlayerCards([]);
+    setHistory([]);
 
     const initialCards = 5;
 
@@ -180,6 +204,7 @@ const App = () => {
       );
     }
 
+    setHistory([...history, 'Start new game']);
     setCards(coloda);
     setOponentCards(opponent);
     setPlayerCards(player);
@@ -206,40 +231,39 @@ const App = () => {
           Start new game
         </button>
       </div>
-      Player Cards
-      <div className='flex gap-8 flex-wrap mt-4'>
-        {Object.entries(countCards(playerCards)).map(([label, count]) => {
-          return (
-            <button
-              disabled={!!playerTurn}
-              key={label}
-              onClick={() => {
-                setPlayerTurn(label);
-              }}
-              className='disabled:bg-red-5 flex text-center justify-center items-center bg-white p-6 cursor-pointer hover:shadow-lg transition-all duration-75'
-            >
-              {label} <br />
-              count: {count}
-            </button>
-          );
-        })}
-      </div>
-      Opponent Cards
-      <div className='flex gap-8 flex-wrap mt-4'>
-        {Object.entries(countCards(oponentCards)).map(([label, count]) => {
-          return (
-            <div
-              key={label}
-              onClick={() => {
-                setPlayerTurn(label);
-              }}
-              className='flex text-center justify-center items-center bg-white p-6 cursor-pointer hover:shadow-lg transition-all duration-75'
-            >
-              {label} <br />
-              count: {count}
-            </div>
-          );
-        })}
+      <div className='flex justify-between p-10'>
+        <div>
+          <div>Player cards</div>
+          <div className='flex gap-8 flex-wrap mt-8'>
+            {Object.entries(countCards(playerCards)).map(([label, count]) => {
+              return (
+                <Card
+                  disabled={!!playerTurn}
+                  key={label}
+                  onClick={() => {
+                    setPlayerTurn(label);
+                  }}
+                  label={label}
+                  count={count}
+                />
+              );
+            })}
+          </div>
+        </div>
+        <div className='mt-14 flex gap-20 flex-col'>
+          <div>
+            <Card label='desc' count={cards?.length} />
+          </div>
+          <div className='overflow-y-auto w-64 h-52' ref={historyContainerRef}>
+            {history.map((turn) => {
+              return (
+                <div>
+                  <div>{turn}</div> -------------------------------------
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
