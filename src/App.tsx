@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from './components/Card/Card';
+import { History } from './components/History/History';
+import { IHistory } from './types';
 
 interface Card {
   label: string;
@@ -25,13 +27,10 @@ const cardToText = (card: number) => {
 };
 
 const shuffleArray = (array: Card[]): Card[] => {
-  // Копіюємо масив, щоб не змінювати оригінал
   const shuffledArray = [...array];
 
-  // Функція для генерації випадкового числа в межах від 0 до n (не включно)
   const getRandomIndex = (n: number): number => Math.floor(Math.random() * n);
 
-  // Перемішуємо масив за допомогою алгоритму Фішера-Йетса
   for (let i = shuffledArray.length - 1; i > 0; i--) {
     const j = getRandomIndex(i + 1);
     [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
@@ -56,11 +55,11 @@ const generateCards = (): Card[] => {
 const App = () => {
   const [cards, setCards] = useState<Card[]>();
   const [playerCards, setPlayerCards] = useState<Card[]>([]);
-  const [oponentCards, setOponentCards] = useState<Card[]>([]);
+  const [opponentCards, setOponentCards] = useState<Card[]>([]);
   const [playerTurn, setPlayerTurn] = useState<string | null>(null);
-  const [history, setHistory] = useState<string[]>([]);
-
-  const historyContainerRef = useRef<HTMLDivElement>(null);
+  const [history, setHistory] = useState<IHistory[]>([]);
+  const [closedPlayerCards, setClosedPlayerCards] = useState<string[]>([]);
+  const [closedOpponentCards, setClosedOpponentCards] = useState<string[]>([]);
 
   useEffect(() => {
     checkQuatro(true);
@@ -68,24 +67,36 @@ const App = () => {
 
   useEffect(() => {
     checkQuatro(false);
-  }, [oponentCards]);
+  }, [opponentCards]);
 
   useEffect(() => {
     if (!cards) return;
-    const turnHistory: string[] = [];
+    const turnHistory: IHistory[] = [];
+
+    if (
+      cards.length === 0 ||
+      playerCards.length === 0 ||
+      opponentCards.length === 0
+    ) {
+      turnHistory.push({ text: 'Game over !' });
+      return;
+    }
+
     let choosenCard: Card = { label: '', mast: '' };
     if (playerTurn) {
-      turnHistory.push('Player turn');
-      turnHistory.push(`Player choose ${playerTurn}`);
-      const findInOponent = oponentCards.filter(
+      turnHistory.push({ text: `Player choose ${playerTurn}`, color: 'green' });
+      const findInOponent = opponentCards.filter(
         ({ label }) => label === playerTurn
       );
 
       if (findInOponent.length > 0) {
-        turnHistory.push(`Player take all ${playerTurn} from opponent.`);
+        turnHistory.push({
+          text: `Player take all ${playerTurn} from opponent.`,
+          color: 'green',
+        });
         setPlayerCards([...playerCards, ...findInOponent]);
         setOponentCards(
-          oponentCards.filter(
+          opponentCards.filter(
             (el1) =>
               !findInOponent.some(
                 (el2) => el1.label === el2.label && el1.mast === el2.mast
@@ -93,31 +104,39 @@ const App = () => {
           )
         );
       } else {
-        turnHistory.push(
-          `Opponent don't have ${playerTurn}. Player take one card from desk.`
-        );
-        const newCard = cards[Math.floor(Math.random() * cards.length)];
-        setPlayerCards([...playerCards, newCard]);
-        setCards(
-          cards?.filter(
-            (item) => JSON.stringify(item) !== JSON.stringify(newCard)
-          )
-        );
+        turnHistory.push({
+          text: `Opponent don't have ${playerTurn}. Player take one card from desk.`,
+          color: 'green',
+        });
+        if (cards.length > 0) {
+          const newCard = cards[Math.floor(Math.random() * cards.length)];
+          setPlayerCards([...playerCards, newCard]);
+          setCards(
+            cards?.filter(
+              (item) => JSON.stringify(item) !== JSON.stringify(newCard)
+            )
+          );
+        }
       }
-
-      setTimeout(() => setPlayerTurn(null), 2000);
+      turnHistory.push({ text: 'Opponent turn.', color: 'red' });
+      setTimeout(() => setPlayerTurn(null), 3000);
     } else {
-      turnHistory.push('Opponent turn.');
-      const choosenCardIndex = Math.floor(Math.random() * oponentCards.length);
-      choosenCard = oponentCards[choosenCardIndex];
-      turnHistory.push(`Opponent choose ${choosenCard.label}.`);
+      const choosenCardIndex = Math.floor(Math.random() * opponentCards.length);
+      choosenCard = opponentCards[choosenCardIndex];
+      turnHistory.push({
+        text: `Opponent choose ${choosenCard.label}.`,
+        color: 'red',
+      });
       const findInPlayer = playerCards.filter(
         ({ label }) => label === choosenCard.label
       );
 
       if (findInPlayer.length > 0) {
-        turnHistory.push(`Opponent take all ${choosenCard.label} from player.`);
-        setOponentCards([...oponentCards, ...findInPlayer]);
+        turnHistory.push({
+          text: `Opponent take all ${choosenCard.label} from player.`,
+          color: 'red',
+        });
+        setOponentCards([...opponentCards, ...findInPlayer]);
         setPlayerCards(
           playerCards.filter(
             (el1) =>
@@ -127,31 +146,28 @@ const App = () => {
           )
         );
       } else {
-        turnHistory.push(
-          `Player don't have ${choosenCard.label}. Opponent take one card from desk.`
-        );
-        const newCard = cards[Math.floor(Math.random() * cards.length)];
+        turnHistory.push({
+          text: `Player don't have ${choosenCard.label}. Opponent take one card from desk.`,
+          color: 'red',
+        });
+        if (cards.length > 0) {
+          const newCard = cards[Math.floor(Math.random() * cards.length)];
 
-        setOponentCards([...oponentCards, newCard]);
-        setCards(
-          cards?.filter(
-            (item) => JSON.stringify(item) !== JSON.stringify(newCard)
-          )
-        );
+          setOponentCards([...opponentCards, newCard]);
+          setCards(
+            cards?.filter(
+              (item) => JSON.stringify(item) !== JSON.stringify(newCard)
+            )
+          );
+        }
+        turnHistory.push({ text: 'Player turn', color: 'green' });
       }
     }
     setHistory([...history, ...turnHistory]);
   }, [playerTurn]);
 
-  useEffect(() => {
-    if (historyContainerRef.current) {
-      historyContainerRef.current.scrollTop =
-        historyContainerRef.current.scrollHeight;
-    }
-  }, [history]);
-
   const checkQuatro = (player: boolean) => {
-    const coloda = player ? playerCards : oponentCards;
+    const coloda = player ? playerCards : opponentCards;
 
     const counts: { [key: string]: number } = {};
 
@@ -167,13 +183,29 @@ const App = () => {
     }
 
     if (fourOfAKind.length > 0) {
-      player
-        ? setPlayerCards(
-            playerCards.filter((card) => !fourOfAKind.includes(card.label))
-          )
-        : setOponentCards(
-            oponentCards.filter((card) => !fourOfAKind.includes(card.label))
-          );
+      if (player) {
+        fourOfAKind.forEach((card) => {
+          setHistory([
+            ...history,
+            { text: `Player collect all ${card} cards`, color: 'green' },
+          ]);
+        });
+        setClosedPlayerCards([...closedPlayerCards, ...fourOfAKind]);
+        setPlayerCards(
+          playerCards.filter((card) => !fourOfAKind.includes(card.label))
+        );
+      } else {
+        fourOfAKind.forEach((card) => {
+          setHistory([
+            ...history,
+            { text: `Opponent collect all ${card} cards`, color: 'red' },
+          ]);
+        });
+        setClosedOpponentCards([...closedOpponentCards, ...fourOfAKind]);
+        setOponentCards(
+          opponentCards.filter((card) => !fourOfAKind.includes(card.label))
+        );
+      }
     }
   };
 
@@ -204,7 +236,11 @@ const App = () => {
       );
     }
 
-    setHistory([...history, 'Start new game']);
+    setHistory([
+      ...history,
+      { text: 'Start new game' },
+      { text: 'Player turn', color: 'green' },
+    ]);
     setCards(coloda);
     setOponentCards(opponent);
     setPlayerCards(player);
@@ -222,7 +258,7 @@ const App = () => {
   };
 
   return (
-    <div className='bg-darkblue-5 p-6 w-full h-screen'>
+    <div className='bg-darkblue-5 p-6 w-full h-full'>
       <div className='bg-white border border-neutral-30 w-full h-20 p-4'>
         <button
           className='bg-darkblue-70 text-white p-2 rounded-lg'
@@ -230,6 +266,22 @@ const App = () => {
         >
           Start new game
         </button>
+      </div>
+      <div className='w-full text-center text-4xl mt-4'>
+        {playerTurn ? 'Opponent turn' : 'Player turn'}
+      </div>
+      <div className='w-full text-center mt-8'>
+        <div className='w-3/4 inline-block'>
+          <div>Opponent cards</div>
+          <div className='flex gap-8 flex-wrap mt-8 justify-center'>
+            {Object.entries(countCards(opponentCards)).map(() => {
+              return <div className='bg-red-40 w-10 h-16'></div>;
+            })}
+          </div>
+        </div>
+        <div className='w-1/4 inline-block'>
+          <Card label='desc' count={cards?.length} />
+        </div>
       </div>
       <div className='flex justify-between p-10'>
         <div>
@@ -249,20 +301,27 @@ const App = () => {
               );
             })}
           </div>
+          <div className='mt-10 flex flex-col gap-5'>
+            <div>
+              <div>Player collect: ({closedPlayerCards.length})</div>
+              <div className='flex gap-4'>
+                {closedPlayerCards.map((card) => (
+                  <div>{card}</div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div>Opponent collect: ({closedOpponentCards.length})</div>
+              <div className='flex gap-4'>
+                {closedOpponentCards.map((card) => (
+                  <div>{card}</div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-        <div className='mt-14 flex gap-20 flex-col'>
-          <div>
-            <Card label='desc' count={cards?.length} />
-          </div>
-          <div className='overflow-y-auto w-64 h-52' ref={historyContainerRef}>
-            {history.map((turn) => {
-              return (
-                <div>
-                  <div>{turn}</div> -------------------------------------
-                </div>
-              );
-            })}
-          </div>
+        <div className='mt-14 flex gap-10 flex-col'>
+          <History history={history} />
         </div>
       </div>
     </div>
