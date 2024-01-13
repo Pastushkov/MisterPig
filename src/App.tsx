@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { Card } from './components/Card/Card';
 import { History } from './components/History/History';
 import { IHistory } from './types';
+import { InfoModal } from './components/Modals/InfoModal/InfoModal';
+
+import './style.css';
 
 interface Card {
   label: string;
@@ -60,6 +63,7 @@ const App = () => {
   const [history, setHistory] = useState<IHistory[]>([]);
   const [closedPlayerCards, setClosedPlayerCards] = useState<string[]>([]);
   const [closedOpponentCards, setClosedOpponentCards] = useState<string[]>([]);
+  const [textForInfoModal, setTextForInfoModal] = useState('');
 
   useEffect(() => {
     checkQuatro(true);
@@ -78,7 +82,9 @@ const App = () => {
       playerCards.length === 0 ||
       opponentCards.length === 0
     ) {
-      turnHistory.push({ text: 'Game over !' });
+      const text = 'Game over !';
+      turnHistory.push({ text });
+      setTextForInfoModal(text);
       return;
     }
 
@@ -90,10 +96,12 @@ const App = () => {
       );
 
       if (findInOponent.length > 0) {
+        const text = `Player take all ${playerTurn} from opponent.`;
         turnHistory.push({
-          text: `Player take all ${playerTurn} from opponent.`,
+          text,
           color: 'green',
         });
+        setTextForInfoModal(text);
         setPlayerCards([...playerCards, ...findInOponent]);
         setOponentCards(
           opponentCards.filter(
@@ -104,10 +112,12 @@ const App = () => {
           )
         );
       } else {
+        const text = `Opponent don't have ${playerTurn}. Player take one card from desk.`;
         turnHistory.push({
-          text: `Opponent don't have ${playerTurn}. Player take one card from desk.`,
+          text,
           color: 'green',
         });
+        setTextForInfoModal(text);
         if (cards.length > 0) {
           const newCard = cards[Math.floor(Math.random() * cards.length)];
           setPlayerCards([...playerCards, newCard]);
@@ -119,7 +129,7 @@ const App = () => {
         }
       }
       turnHistory.push({ text: 'Opponent turn.', color: 'red' });
-      setTimeout(() => setPlayerTurn(null), 3000);
+      setTimeout(() => setPlayerTurn(null), 4000);
     } else {
       const choosenCardIndex = Math.floor(Math.random() * opponentCards.length);
       choosenCard = opponentCards[choosenCardIndex];
@@ -132,10 +142,12 @@ const App = () => {
       );
 
       if (findInPlayer.length > 0) {
+        const text = `Opponent take all ${choosenCard.label} from player.`;
         turnHistory.push({
-          text: `Opponent take all ${choosenCard.label} from player.`,
+          text,
           color: 'red',
         });
+        setTextForInfoModal(text);
         setOponentCards([...opponentCards, ...findInPlayer]);
         setPlayerCards(
           playerCards.filter(
@@ -146,10 +158,12 @@ const App = () => {
           )
         );
       } else {
+        const text = `Player don't have ${choosenCard.label}. Opponent take one card from desk.`;
         turnHistory.push({
-          text: `Player don't have ${choosenCard.label}. Opponent take one card from desk.`,
+          text,
           color: 'red',
         });
+        setTextForInfoModal(text);
         if (cards.length > 0) {
           const newCard = cards[Math.floor(Math.random() * cards.length)];
 
@@ -185,10 +199,9 @@ const App = () => {
     if (fourOfAKind.length > 0) {
       if (player) {
         fourOfAKind.forEach((card) => {
-          setHistory([
-            ...history,
-            { text: `Player collect all ${card} cards`, color: 'green' },
-          ]);
+          const text = `Player collect all ${card} cards`;
+          setHistory([...history, { text, color: 'green' }]);
+          setTextForInfoModal(text);
         });
         setClosedPlayerCards([...closedPlayerCards, ...fourOfAKind]);
         setPlayerCards(
@@ -196,10 +209,9 @@ const App = () => {
         );
       } else {
         fourOfAKind.forEach((card) => {
-          setHistory([
-            ...history,
-            { text: `Opponent collect all ${card} cards`, color: 'red' },
-          ]);
+          const text = `Opponent collect all ${card} cards`;
+          setHistory([...history, { text, color: 'red' }]);
+          setTextForInfoModal(text);
         });
         setClosedOpponentCards([...closedOpponentCards, ...fourOfAKind]);
         setOponentCards(
@@ -258,7 +270,7 @@ const App = () => {
   };
 
   return (
-    <div className='bg-darkblue-5 p-6 w-full h-full'>
+    <div className='bg-darkblue-5 p-6 w-full h-full scrollbar'>
       <div className='bg-white border border-neutral-30 w-full h-20 p-4'>
         <button
           className='bg-darkblue-70 text-white p-2 rounded-lg'
@@ -324,6 +336,7 @@ const App = () => {
           <History history={history} />
         </div>
       </div>
+      <InfoModal text={textForInfoModal} />
     </div>
   );
 };

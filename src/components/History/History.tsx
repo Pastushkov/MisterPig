@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { IHistory } from '../../types';
 import { cn } from '../../services/cn';
+import '../../style.css';
 
 interface Props {
   history: IHistory[];
@@ -18,7 +19,7 @@ export const History = ({ history }: Props) => {
 
   return (
     <div
-      className='overflow-y-auto w-64 h-60 bg-white rounded-xl p-6'
+      className='overflow-y-auto w-64 h-60 bg-white rounded-xl p-6 scrollbar'
       ref={historyContainerRef}
     >
       {history.map(({ text, color }) => (
@@ -28,7 +29,7 @@ export const History = ({ history }: Props) => {
             'text-red-100': color === 'red',
           })}
         >
-          {text}  <br /> 
+          {text} <br />
           ---------------------------
         </div>
       ))}
