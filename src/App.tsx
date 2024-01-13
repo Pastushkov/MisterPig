@@ -4,6 +4,8 @@ import { History } from './components/History/History';
 import { IHistory } from './types';
 import { InfoModal } from './components/Modals/InfoModal/InfoModal';
 
+import './style.css';
+
 interface Card {
   label: string;
   mast: string;
@@ -127,7 +129,7 @@ const App = () => {
         }
       }
       turnHistory.push({ text: 'Opponent turn.', color: 'red' });
-      setTimeout(() => setPlayerTurn(null), 3000);
+      setTimeout(() => setPlayerTurn(null), 4000);
     } else {
       const choosenCardIndex = Math.floor(Math.random() * opponentCards.length);
       choosenCard = opponentCards[choosenCardIndex];
@@ -268,7 +270,7 @@ const App = () => {
   };
 
   return (
-    <div className='bg-darkblue-5 p-6 w-full h-full'>
+    <div className='bg-darkblue-5 p-6 w-full h-full scrollbar'>
       <div className='bg-white border border-neutral-30 w-full h-20 p-4'>
         <button
           className='bg-darkblue-70 text-white p-2 rounded-lg'

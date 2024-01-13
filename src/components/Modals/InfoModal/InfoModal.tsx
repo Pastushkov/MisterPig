@@ -23,7 +23,7 @@ export const InfoModal = ({ text }: Props) => {
 
   return (
     open && (
-      <div className='bg-lightblue-10 text-black text-lg fixed right-5 top-10 rounded-lg border border-neutral-50 p-6 text-center w-52'>
+      <div className='bg-lightblue-10 text-black text-lg fixed right-5 top-10 rounded-lg border border-neutral-50 p-6 text-center w-72'>
         {text}
       </div>
     )
