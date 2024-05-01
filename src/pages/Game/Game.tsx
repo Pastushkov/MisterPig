@@ -3,12 +3,9 @@ import { ICard, IHistory } from "../../types";
 import { Card } from "../../components/Card/Card";
 import { History } from "../../components/History/History";
 import { InfoModal } from "../../components/Modals/InfoModal/InfoModal";
-import { Image } from "../../components/Image/Image";
 import { Tooltip } from "react-tooltip";
 import infoIcon from "../../assets/info.svg";
 import { useNavigate } from "@tanstack/react-location";
-
-console.log(infoIcon);
 
 const cards = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 const suits = ["hearts", "diamonds", "clubs", "spades"];
@@ -346,13 +343,6 @@ export const Game = () => {
           Start new game
         </button>
         <div data-tooltip-id="info">
-          <Image
-            icon={infoIcon}
-            className="w-8 h-8 cursor-pointer"
-            onClick={() => {
-              navigate({ to: "/MisterPig/how-to-play" });
-            }}
-          />
           <img
             src={infoIcon}
             className="w-8 h-8 cursor-pointer"

@@ -3,7 +3,6 @@ import clubsSuitIcon from "../../assets/clubs.svg";
 import diamondSuitIcon from "../../assets/diamonds.svg";
 import spadesSuitIcon from "../../assets/spades.svg";
 import heartsSuitIcon from "../../assets/hearts.svg";
-import { Image } from "../Image/Image";
 
 interface Props {
   label?: string;
@@ -45,13 +44,10 @@ export const Card = ({
       {suits && (
         <div className="flex gap-2">
           {suits.map((suit) => (
-            <Image
+            <img
               key={`${label}-${suit}`}
-              icon={suitToImage[suit]}
-              className={cn({
-                "bg-red-100": suit === "hearts" || suit === "diamonds",
-                "bg-black": suit === "clubs" || suit === "spades",
-              })}
+              src={suitToImage[suit]}
+              className={cn("h-4 w-4")}
             />
           ))}
         </div>
