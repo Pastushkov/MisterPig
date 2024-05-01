@@ -1,8 +1,8 @@
 import { cn } from "../../services/cn";
-import clubsSuitIcon from "../../assets/clubs.svg";
-import diamondSuitIcon from "../../assets/diamonds.svg";
-import spadesSuitIcon from "../../assets/spades.svg";
-import heartsSuitIcon from "../../assets/hearts.svg";
+import clubsSuitIcon from "./assets/clubs.svg";
+import diamondSuitIcon from "./assets/diamonds.svg";
+import spadesSuitIcon from "./assets/spades.svg";
+import heartsSuitIcon from "./assets/hearts.svg";
 import { Image } from "../Image/Image";
 
 interface Props {
