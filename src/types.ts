@@ -3,4 +3,9 @@ export interface IHistory {
   color?: HistoryColor;
 }
 
-export type HistoryColor = 'green' | 'red';
+export type HistoryColor = "green" | "red";
+
+export interface ICard {
+  label: string;
+  suit: string;
+}

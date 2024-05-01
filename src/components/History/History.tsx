@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react';
-import { IHistory } from '../../types';
-import { cn } from '../../services/cn';
-import '../../style.css';
+import { useEffect, useRef } from "react";
+import { IHistory } from "../../types";
+import { cn } from "../../services/cn";
+import "../../style.css";
 
 interface Props {
   history: IHistory[];
@@ -19,15 +19,16 @@ export const History = ({ history }: Props) => {
 
   return (
     <div
-      className='overflow-y-auto w-64 h-60 bg-white rounded-xl p-6 scrollbar'
+      className="overflow-y-auto w-64 h-60 bg-white rounded-xl p-6 scrollbar"
       ref={historyContainerRef}
     >
-      {history.map(({ text, color }) => (
+      {history.map(({ text, color }, index) => (
         <div
-          className={cn('text-black', {
-            'text-green-100': color === 'green',
-            'text-red-100': color === 'red',
+          className={cn("text-black", {
+            "text-green-100": color === "green",
+            "text-red-100": color === "red",
           })}
+          key={`history-${index}`}
         >
           {text} <br />
           ---------------------------
