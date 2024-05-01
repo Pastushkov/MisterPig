@@ -5,7 +5,7 @@ import { History } from "../../components/History/History";
 import { InfoModal } from "../../components/Modals/InfoModal/InfoModal";
 import { Image } from "../../components/Image/Image";
 import { Tooltip } from "react-tooltip";
-import infoIcon from "./assets/info.svg";
+import infoIcon from "./../../assets/info.svg";
 import { useNavigate } from "@tanstack/react-location";
 
 const cards = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
