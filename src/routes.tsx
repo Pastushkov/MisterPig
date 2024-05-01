@@ -6,12 +6,12 @@ export const location = new ReactLocation();
 
 export const routes: Route[] = [
   {
-    path: "/MisterPig",
+    path: "/",
     children: [
       {
         id: "navigate-to-game",
         path: "/",
-        element: <Navigate to="/MisterPig/game" />,
+        element: <Navigate to="/game" />,
       },
       {
         path: "/game",

@@ -347,7 +347,7 @@ export const Game = () => {
             src={infoIcon}
             className="w-8 h-8 cursor-pointer"
             onClick={() => {
-              navigate({ to: "/MisterPig/how-to-play" });
+              navigate({ to: "/how-to-play" });
             }}
           />
           <Tooltip
