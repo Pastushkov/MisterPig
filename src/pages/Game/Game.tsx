@@ -353,6 +353,13 @@ export const Game = () => {
               navigate({ to: "/MisterPig/how-to-play" });
             }}
           />
+          <img
+            src={infoIcon}
+            className="w-8 h-8 cursor-pointer"
+            onClick={() => {
+              navigate({ to: "/MisterPig/how-to-play" });
+            }}
+          />
           <Tooltip
             id="info"
             content="How to play?"
